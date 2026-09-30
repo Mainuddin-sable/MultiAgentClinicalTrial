@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinical Trial Protocol Review</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #F6EFDE;
+    --surface: #FCF8EE;
+    --ink: #26221A;
+    --ink-muted: #6E6752;
+    --ink-faint: #9C927A;
+    --accent: #2C4A3E;
+    --accent-soft: #E3EAE3;
+    --pass: #3C6E4F;
+    --pass-soft: #E7EFE6;
+    --issue: #7A2E1D;
+    --issue-soft: #F2E3DC;
+    --partial: #83600E;
+    --partial-soft: #F1E9D4;
+    --unverified: #5B4470;
+    --unverified-soft: #E9E3EE;
+    --border: #E2D8BE;
+    --border-strong: #CBBE98;
+    --radius: 10px;
+    --serif: 'Source Serif 4', Georgia, serif;
+    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    padding: 0 0 80px;
+  }
+
+  a { color: var(--accent); }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+  /* ---------- Header ---------- */
+
+  header {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 28px 40px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  header h1 {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+  }
+
+  .status-pill {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    color: var(--ink-muted);
+    background: var(--bg);
+  }
+
+  .status-pill.running {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  /* ---------- Input card ---------- */
+
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 32px;
+  }
+
+  .input-card label {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 160px;
+    resize: vertical;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--bg);
+  }
+
+  .input-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .btn-group { display: flex; gap: 10px; }
+
+  button {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 6px;
+    padding: 11px 20px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #1C3229; }
+  .btn-primary:disabled { background: var(--ink-faint); cursor: not-allowed; }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--ink-muted);
+    border-color: var(--border-strong);
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .helper-note {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+  }
+
+  /* ---------- Decision banner ---------- */
+
+  .decision-banner {
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 32px;
+    border-left: 5px solid;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: none;
+  }
+
+  .decision-banner.visible { display: block; }
+  .decision-banner.approved { border-left-color: var(--pass); }
+  .decision-banner.needs_revision { border-left-color: var(--issue); }
+
+  .decision-banner h2 {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .decision-banner.approved h2 { color: var(--pass); }
+  .decision-banner.needs_revision h2 { color: var(--issue); }
+
+  .decision-banner p {
+    color: var(--ink-muted);
+    font-size: 13.5px;
+    margin-top: 4px;
+  }
+
+  /* ---------- Columns ---------- */
+
+  .review-grid {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .review-grid.visible { display: grid; }
+
+  @media (max-width: 900px) {
+    .review-grid { grid-template-columns: 1fr; }
+    main { padding: 24px 20px; }
+    header { padding: 22px 20px; }
+  }
+
+  .agent-column h3 {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .agent-column .agent-sub {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  /* ---------- Finding card ---------- */
+
+  .finding {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .finding.pass { border-left-color: var(--pass); }
+  .finding.issue { border-left-color: var(--issue); }
+  .finding.partial { border-left-color: var(--partial); }
+
+  .finding-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .finding-topic {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge.pass { background: var(--pass-soft); color: var(--pass); }
+  .badge.issue { background: var(--issue-soft); color: var(--issue); }
+  .badge.partial { background: var(--partial-soft); color: var(--partial); }
+
+  .finding-explanation {
+    font-size: 13.5px;
+    color: var(--ink-muted);
+    line-height: 1.6;
+  }
+
+  /* ---------- Citation seal (signature element) ---------- */
+
+  .citation-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .seal {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .seal.unverified {
+    border: 1px dashed var(--unverified);
+    color: var(--unverified);
+    background: var(--unverified-soft);
+  }
+
+  .seal::before {
+    content: "✓ ";
+  }
+  .seal.unverified::before {
+    content: "⚠ ";
+  }
+
+  /* ---------- Biostat computed card ---------- */
+
+  .stat-grid {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+  }
+
+  .stat-item {
+    font-family: var(--mono);
+  }
+
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    display: block;
+  }
+
+  .stat-value {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .empty-state {
+    font-size: 13px;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <span class="eyebrow">Multi-Agent Review System</span>
+    <h1>Clinical Trial Protocol Review</h1>
+  </div>
+  <span class="status-pill" id="statusPill">Idle</span>
+</header>
+
+<main>
+
+  <div class="input-card">
+    <label for="protocolInput">Protocol text</label>
+    <textarea id="protocolInput" placeholder="Paste the protocol text here, or upload a PDF (coming soon)...">Study Title: A Randomized, Placebo-Controlled Trial of Drug X for Type 2 Diabetes
+
+Design: 50 participants, randomized 1:1 to Drug X (n=25) or placebo (n=25).
+Primary Endpoint: Change in fasting blood glucose (mg/dL) from baseline to Week 12.
+Population: Adults aged 18-65 with confirmed Type 2 Diabetes Mellitus.
+Statistical Plan: Two-sample t-test comparing mean glucose reduction between arms,
+alpha = 0.05, target power = 80%. Expected effect size: 20 mg/dL difference,
+assumed standard deviation 25 mg/dL.
+Safety: Adverse events will be recorded by investigators during study visits.
+Consent: Written informed consent will be obtained from all participants prior
+to enrollment.</textarea>
+    <div class="input-actions">
+      <span class="helper-note">Runs against <code>http://localhost:8000/review</code> if the backend is running.</span>
+      <div class="btn-group">
+        <button class="btn-secondary" id="demoBtn">Load demo result</button>
+        <button class="btn-primary" id="runBtn">Run review</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="decision-banner" id="decisionBanner">
+    <h2 id="decisionText"></h2>
+    <p id="decisionSub"></p>
+  </div>
+
+  <div class="review-grid" id="reviewGrid">
+    <div class="agent-column">
+      <h3>Regulatory</h3>
+      <span class="agent-sub">ICH / FDA / eCFR &middot; RAG-grounded</span>
+      <div id="regulatoryFindings"></div>
+    </div>
+    <div class="agent-column">
+      <h3>Biostatistics</h3>
+      <span class="agent-sub">statsmodels &middot; deterministic</span>
+      <div id="biostatFindings"></div>
+    </div>
+    <div class="agent-column">
+      <h3>Clinical</h3>
+      <span class="agent-sub">rubric-based review</span>
+      <div id="clinicalFindings"></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // Mirrors the real JSON shape returned by review_graph.py's compiled
+  // graph via the FastAPI backend. Swap-in ready: once the backend is
+  // running, "Run review" uses this exact structure from a real response.
+  const mockData = {
+    decision: "needs_revision",
+    regulatory_findings: [
+      {
+        topic: "informed consent process and documentation requirements",
+        status: "issue",
+        explanation: "The protocol states only that written informed consent will be obtained prior to enrollment. It lacks required details specified in the regulatory evidence, such as compliance with applicable regulatory requirements and GCP principles, prior IRB/IEC approval of the consent form, and provision of ample time and opportunity for questions.",
+        cited_sources: [
+          { source_file: "E6_R2_Addendum.pdf", chunk_index: 85, verified: true },
+          { source_file: "E6_R2_Addendum.pdf", chunk_index: 91, verified: true }
+        ]
+      },
+      {
+        topic: "safety monitoring and adverse event reporting obligations",
+        status: "issue",
+        explanation: "The protocol only notes that adverse events will be recorded during study visits, failing to establish required procedures for immediate SAE reporting to the sponsor and expedited reporting of serious, unexpected adverse drug reactions to regulatory authorities and IRBs.",
+        cited_sources: [
+          { source_file: "E6_R2_Addendum.pdf", chunk_index: 105, verified: true },
+          { source_file: "E6_R2_Addendum.pdf", chunk_index: 142, verified: false }
+        ]
+      },
+      {
+        topic: "statistical principles for trial design and sample size justification",
+        status: "pass",
+        explanation: "The protocol specifies the primary objective, endpoint, statistical method, alpha, power, and expected effect size, fulfilling the requirement that sample size be determined by the primary objective to provide a reliable answer.",
+        cited_sources: [
+          { source_file: "E9_Guideline.pdf", chunk_index: 106, verified: true }
+        ]
+      },
+      {
+        topic: "general considerations for clinical study design and quality",
+        status: "pass",
+        explanation: "The protocol outlines a scientifically sound, randomized, placebo-controlled design with a clear primary endpoint and statistical justification.",
+        cited_sources: [
+          { source_file: "E8-R1_Guideline_Step4_2021_1006.pdf", chunk_index: 20, verified: true }
+        ]
+      }
+    ],
+    biostat_result: {
+      status: "issue",
+      explanation: "The proposed sample size of 25 participants per group yields an actual statistical power of 0.791, falling slightly short of the target of 0.8. A sample size of 26 per group is required to reach 80% power.",
+      computed_stats: {
+        cohens_d: 0.8,
+        proposed_n_per_group: 25,
+        achieved_power: 0.791,
+        required_n_per_group: 26,
+        alpha: 0.05
+      }
+    },
+    clinical_findings: [
+      {
+        label: "Patient population & eligibility criteria",
+        status: "issue",
+        explanation: "The protocol lacks detailed inclusion criteria (e.g. HbA1c thresholds), exclusion criteria for comorbidities and concurrent medications, and justification for the age range restriction."
+      },
+      {
+        label: "Intervention & comparator appropriateness",
+        status: "issue",
+        explanation: "Dose, route, and dosing frequency for Drug X are unspecified, and no ethical justification is given for using a placebo rather than an active comparator."
+      },
+      {
+        label: "Primary endpoint clinical relevance",
+        status: "partial",
+        explanation: "Fasting blood glucose is measurable and time-bound, but HbA1c is the standard, more clinically meaningful endpoint for sustained glycemic control in Type 2 Diabetes trials."
+      },
+      {
+        label: "Safety monitoring procedures (clinical adequacy)",
+        status: "issue",
+        explanation: "No defined monitoring intervals, stopping rules, dose-modification criteria, or risk-specific monitoring (e.g. hypoglycemia assessments) are specified."
+      }
+    ]
+  };
+
+  const statusPill = document.getElementById('statusPill');
+  const decisionBanner = document.getElementById('decisionBanner');
+  const decisionText = document.getElementById('decisionText');
+  const decisionSub = document.getElementById('decisionSub');
+  const reviewGrid = document.getElementById('reviewGrid');
+
+  function findingCard(topicOrLabel, status, explanation, citedSources) {
+    const div = document.createElement('div');
+    div.className = `finding ${status}`;
+
+    let citationsHtml = '';
+    if (citedSources && citedSources.length) {
+      citationsHtml = `<div class="citation-row">` +
+        citedSources.map(c => {
+          const cls = c.verified === false ? 'seal unverified' : 'seal';
+          return `<span class="${cls}">${c.source_file} &middot; chunk ${c.chunk_index}</span>`;
+        }).join('') +
+        `</div>`;
+    }
+
+    div.innerHTML = `
+      <div class="finding-head">
+        <span class="finding-topic">${topicOrLabel}</span>
+        <span class="badge ${status}">${status}</span>
+      </div>
+      <p class="finding-explanation">${explanation}</p>
+      ${citationsHtml}
+    `;
+    return div;
+  }
+
+  function biostatCard(result) {
+    const div = document.createElement('div');
+    div.className = `finding ${result.status}`;
+    const s = result.computed_stats;
+
+    div.innerHTML = `
+      <div class="finding-head">
+        <span class="finding-topic">Sample size &amp; power</span>
+        <span class="badge ${result.status}">${result.status}</span>
+      </div>
+      <p class="finding-explanation">${result.explanation}</p>
+      <div class="stat-grid">
+        <div class="stat-item"><span class="stat-label">Cohen's d</span><span class="stat-value">${s.cohens_d}</span></div>
+        <div class="stat-item"><span class="stat-label">Achieved power</span><span class="stat-value">${s.achieved_power}</span></div>
+        <div class="stat-item"><span class="stat-label">Proposed n/group</span><span class="stat-value">${s.proposed_n_per_group}</span></div>
+        <div class="stat-item"><span class="stat-label">Required n/group</span><span class="stat-value">${s.required_n_per_group}</span></div>
+      </div>
+    `;
+    return div;
+  }
+
+  function renderReview(data) {
+    // Decision banner
+    decisionBanner.className = `decision-banner visible ${data.decision}`;
+    decisionText.textContent = data.decision === 'approved' ? 'Approved' : 'Needs revision';
+
+    const allFindings = [...data.regulatory_findings, data.biostat_result, ...data.clinical_findings];
+    const issueCount = allFindings.filter(f => f.status === 'issue' || f.status === 'partial').length;
+    decisionSub.textContent = `${issueCount} finding(s) flagged across 3 agents`;
+
+    // Regulatory
+    const regDiv = document.getElementById('regulatoryFindings');
+    regDiv.innerHTML = '';
+    data.regulatory_findings.forEach(f => {
+      regDiv.appendChild(findingCard(f.topic, f.status, f.explanation, f.cited_sources));
+    });
+
+    // Biostat
+    const bioDiv = document.getElementById('biostatFindings');
+    bioDiv.innerHTML = '';
+    bioDiv.appendChild(biostatCard(data.biostat_result));
+
+    // Clinical
+    const clinDiv = document.getElementById('clinicalFindings');
+    clinDiv.innerHTML = '';
+    data.clinical_findings.forEach(f => {
+      clinDiv.appendChild(findingCard(f.label, f.status, f.explanation, null));
+    });
+
+    reviewGrid.className = 'review-grid visible';
+    statusPill.textContent = 'Review complete';
+    statusPill.className = 'status-pill';
+  }
+
+  document.getElementById('demoBtn').addEventListener('click', () => {
+    renderReview(mockData);
+  });
+
+  document.getElementById('runBtn').addEventListener('click', async () => {
+    const protocolText = document.getElementById('protocolInput').value;
+    const runBtn = document.getElementById('runBtn');
+    runBtn.disabled = true;
+    statusPill.textContent = 'Running review...';
+    statusPill.className = 'status-pill running';
+
+    try {
+      const res = await fetch('http://localhost:8000/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ protocol_text: protocolText })
+      });
+      if (!res.ok) throw new Error('Backend returned an error');
+      const data = await res.json();
+      renderReview(data);
+    } catch (err) {
+      statusPill.textContent = 'Backend not reachable -- showing demo data instead';
+      statusPill.className = 'status-pill';
+      renderReview(mockData);
+    } finally {
+      runBtn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>
