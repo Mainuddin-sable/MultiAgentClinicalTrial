@@ -50,7 +50,7 @@ Refer to the individual project files for setup and execution instructions.
 
 ## Project Type
 
-Collaborative Academic Project
+Academic Project
 
 ## Contributors
 
