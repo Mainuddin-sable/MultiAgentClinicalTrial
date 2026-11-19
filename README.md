@@ -52,10 +52,6 @@ Refer to the individual project files for setup and execution instructions.
 
 Academic Project
 
-## Contributors
-
-Developed collaboratively as part of an academic project. Credit and contributions should be attributed to the original project team.
-
 ## Future Improvements
 
 - Improve agent coordination and communication.
